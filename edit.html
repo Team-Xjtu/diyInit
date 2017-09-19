@@ -1,0 +1,436 @@
+
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/main.css">
+    <title>Diy</title>
+</head>
+<body>
+    <!-- 编辑头部 -->
+    <div class="bar bar-header bar-edit-header">
+        <a id="edit-return" class="left" title="返回" href="home.html">返回</a>
+        <h1 id="header-title">手机模型</h1>
+        <a id="edit-submit" class="right" title="提交">提交</a>
+    </div>
+    <!-- 额外编辑按钮 -->
+    <div class="edit-list-text">
+        <button id="edit-text" class="edit-btn">
+            <i>T</i>
+        </button>
+    </div>
+    <div class="edit-list-scale-look">
+        <button id="showModel" class="edit-btn">
+            <i>L</i>
+        </button>
+    </div>
+    <div class="edit-list-scale-small">
+        <button id="small" class="edit-btn">
+            <i>-</i>
+        </button>
+    </div>
+    <div class="edit-list-scale-big">
+        <button id="big" class="edit-btn">
+            <i>+</i>
+        </button>
+    </div>
+    <div class="edit-list-scale-text">
+        <button id="move" class="edit-btn">
+            <i>M</i>
+        </button>
+    </div>
+    <!-- 文字编辑 -->
+    <div id="edit-text-box" class="edit-text-box">
+        <div id="edit-text-content" class="edit-text-content">
+            <input class="edit-textarea" name="text" placeholder="输入文字" v-model="text" maxlength="8">
+            <div class="content-block">
+                <div class="buttons-tab">
+                    <a class="tab-link" v-for="(tab, index) in tabs" :class="{active:tab.active}" @click="tabChange(index)">{{ tab.text }}</a>
+                </div>
+            </div>
+            <div id="setSize" class="content-block">
+                <div v-show="tabs[0].active">
+                    <input id="single-slider-size" type="hidden" class="single-slider" value="1"/>
+                    <input type="text" name="sizeVal" id="sizeVal" style="display: none">
+                </div>
+                <div v-show="tabs[1].active">
+                    <input id="single-slider-height" type="hidden" class="single-slider" value="0"/>
+                    <input type="text" name="heightVal" id="heightVal" style="display: none">
+                </div>
+            </div>
+            <div class="content-block" v-show="tabs[2].active">
+                <div id="examples">
+                    <input type="range" min="0" max="100" value="50" data-rangeslider>
+                    <output></output>
+                    <canvas id="myCanvas"></canvas>
+                    <input type="text" name="colorVal" id="colorVal" style="display: none">
+                </div>
+            </div>
+            <div class="content-block" v-show="tabs[3].active">
+                <select id="selected" name="font" class="selected">
+                    <option v-for="option in options" :value="option.value">
+                        {{ option.text }}
+                    </option>
+                </select>
+            </div>
+            <a class="btn-reset" onclick="clearFont()">重置文字</a>
+            <a class="btn-submit" onclick="addFont()">添加文字</a>
+        </div>
+    </div>
+
+    <!-- 编辑页面内容 -->
+    <div class="edit-content">
+        <div id="content" class="content-model"></div>
+    </div>
+
+    <canvas id="canvid1" class="content-canvas"></canvas>
+    <img id="img1" src="images/bg.jpg" width="64" height="64">
+
+    <!-- 编辑底部 -->
+    <div class="edit-bottom">
+        <div id="edit-option" class="edit-option">
+            <span v-for="(tab, index) in tabs" :class="{active:tab.active}" @click="changeTab(index)">{{ tab.text }}</span>
+            <input type="file" id="imgFile" class="imgFile" style="display: none">
+        </div>
+        <div class="edit-material-box">
+            <nav id="headerDiy">
+                <div id="photoList" class="demo2">
+                    <div id="addImage" class="inside">
+                        <a href="#"><img src="images/assets/img1.jpg" alt="" /></a>
+                        <a href="#"><img src="images/assets/img2.jpg" alt="" /></a>
+                        <a href="#"><img src="images/assets/img3.jpg" alt="" /></a>
+                        <a href="#"><img src="images/assets/img4.jpg" alt="" /></a>
+                        <a href="#"><img src="images/assets/img5.jpg" alt="" /></a>
+                        <a href="#"><img src="images/assets/img6.jpg" alt="" /></a>
+                        <a href="#"><img src="images/assets/img7.jpg" alt="" /></a>
+                        <a href="#"><img src="images/assets/img8.jpg" alt="" /></a>
+                        <a href="#"><img src="images/assets/img9.jpg" alt="" /></a>
+                        <a href="#"><img src="images/assets/img10.jpg" alt="" /></a>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <!-- 指引 -->
+    <div id="guide-box" class="guide-box">
+        <div class="guide-text">编辑文字</div>
+        <div class="guide-photo">操作图片</div>
+        <div class="guide-mark">+-功能待开放</div>
+        <div class="guide-move">移动文字</div>
+    </div>
+    <!-- 图片库 -->
+    <link rel="stylesheet" type="text/css" href="css/headerDiy.css" />
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.easing.js"></script>
+    <script type="text/javascript" src="js/scroller.js"></script>
+    <script type="text/javascript" src="js/initHeaderDiy.js"></script>
+    <!-- 滑块 -->
+    <link rel="stylesheet" href="css/range.css" />
+    <script type="text/javascript" src="js/range.js"></script>
+    <!-- 颜色 -->
+    <script type="text/javascript" src="js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="js/colorpicker.js"></script>
+    <!-- 布局 -->
+    <script src="js/vue.js"></script>
+    <script src="js/vue-resource.min.js"></script>
+    <!-- 3D -->
+    <script src="threejs/three86.js"></script>
+    <script src="threejs/OrbitControls.js"></script>
+    <script src="threejs/initSence.js"></script>
+    <script src="threejs/addFont.js"></script>
+    <!-- canvas -->
+    <script type="text/javascript" src="canvasjs/utilitie.js"></script>
+    <script type="text/javascript" src="canvasjs/canvasEl.js"></script>
+    <script type="text/javascript" src="canvasjs/canvasIm.js"></script>
+    <script src="js/hammer.js"></script>
+    <!-- 数据访问 -->
+    <script src="js/app.js"></script>
+    <script>
+        var chooseText = 0;
+        var noText = false;
+        var canvid1 = document.getElementById("canvid1");
+        var colorVal = document.getElementById("colorVal");
+        var YD = YAHOO.util.Dom;
+        var canvas1;
+        var img = [];
+
+        var url = "http://123.206.98.49:3001/getOne3dModel?shangpinhao=" + getQuerystring("id");
+
+        (function(){
+            "use strict";
+            //http://localhost:3001 http://123.206.98.49:3000
+            new Vue({
+                el: "",
+                data: {
+                    items: []
+                },
+                created: function() {
+                    this.$http.get(url, {
+                        before: function() {
+
+                        }
+                    }).then(function(res) {
+                        //{shangpinhao: "20177417181872122764",
+                        // photoPath: Array(2),
+                        // modelPath: "/shangpin/20177417181872122764/moxingwenjian/model.js"
+                        // res.body.modelPath}
+                        var url = res.body.modelPath.replace("/","");
+                        if(res.body){
+                            createThree(url, "content", res.body.photoPath);
+                        }
+
+                    }, function() {
+
+                    });
+                }
+            });
+        })();
+
+        CanvasDemo();
+
+        function CanvasDemo() {
+            canvas1 = new Canvas.Element();
+            canvas1.init('canvid1',  { width: YD.getViewportWidth(), height: YD.getViewportHeight()});
+            img[img.length] = new Canvas.Img('img1', {});
+            canvas1.addImage(img[0]);
+        }
+
+        (function() {
+
+            'use strict';
+
+            var select = new Vue({
+                el: '#selected',
+                data: {
+                    options: [
+                        { text: '仿宋', value: 'FangSong_Regular' },
+                        { text: '隶书', value: 'FZLiShu-S01S_Regular' }
+                    ]
+                }
+            });
+        })();
+
+        (function() {
+
+            'use strict';
+
+            var list = new Vue({
+                el:"#edit-option",
+                data: {
+                    tabs: [
+                        {
+                            text: "上传图片",
+                            active: false
+                        }, {
+                            text: "图库素材",
+                            active: false
+                        }
+                    ]
+                },
+                methods: {
+                    changeTab: function(index) {
+                        this.tabs.map(function(value, i) {
+                            if (index === i) {
+                                if(index == 0){
+                                    $('#imgFile').click();
+                                }
+                                value.active = true;
+                            } else {
+                                value.active = false;
+                            }
+                        });
+                    }
+                }
+            });
+        })();
+
+        (function() {
+
+            'use strict';
+
+            var app = new Vue({
+                el: "#edit-text-content",
+                data: {
+                    tabs: [
+                        {
+                            text: "大小",
+                            active: true
+                        }, {
+                            text: "厚度",
+                            active: false
+                        }, {
+                            text: "颜色",
+                            active: false
+                        }, {
+                            text: "字体",
+                            active: false
+                        }
+                    ],
+                    colors: [],
+                    fonts: [],
+                    text: "",
+                    show: false,
+                    editTextBox: document.getElementById("edit-text-box")
+                },
+                watch: {
+                    show: function(value) {
+                        var _this = this;
+
+                        if (value) {
+                            this.editTextBox.classList.add("active");
+
+                            setTimeout(function() {
+                                _this.editTextBox.classList.add("effect");
+                            }, 50);
+
+                        } else {
+                            this.editTextBox.classList.remove("effect");
+
+                            setTimeout(function() {
+                                _this.editTextBox.classList.remove("active");
+                            }, 400);
+                        }
+                    }
+                },
+                methods: {
+                    tabChange: function (index) {
+                        this.tabs.map(function (value, i) {
+                            value.active = index === i ? true : false;
+                            if(index == 0){
+                                chooseText = 0;
+                            }else if(index == 1) {
+                                chooseText = 1;
+                            }
+                        });
+                    }
+                },
+                created: function() {
+
+                    var _this = this;
+
+                    var editText = document.getElementById("edit-text");
+
+                    // 显示文字编辑
+                    editText.addEventListener("click", function() {
+                        _this.show = true;
+                        initSlider();
+                        myCanvas();
+                    });
+
+                    // 隐藏文字编辑
+                    this.editTextBox.addEventListener("click", function(e) {
+                        if (e.target === this) {
+                            _this.show = false;
+                        }
+                    });
+
+                    var canvid1 = document.getElementById("canvid1");
+                    var showModel = document.getElementById("showModel");
+                    showModel.addEventListener("click", function() {
+                        if(isPhotoDiy){
+                            canvid1.style.display = "block";
+                            isPhotoDiy = !isPhotoDiy;
+                        }else{
+                            canvid1.style.display = "none";
+                            isPhotoDiy = !isPhotoDiy;
+                        }
+                    });
+//                    var small = document.getElementById("small");
+//                    small.addEventListener("click", function() {
+//                        index = index - 1;
+//                        createThree("models/Iphone5.js","content","");
+//                    });
+                    var move = document.getElementById("move");
+                    move.addEventListener("click", function() {
+                        if(!noText){
+                            alert("没有文字");
+                        }else{
+                            isMove = !isMove;
+                            if(!isMove){
+                                webGLRenderer.domElement.removeEventListener( 'touchmove', onDocumentMouseMove, false );
+                            }else{
+                                webGLRenderer.domElement.addEventListener( 'touchmove', onDocumentMouseMove, false );
+                            }
+                        }
+                    });
+                }
+            });
+        })();
+
+        function initSlider() {
+            $('.single-slider').jRange({
+                from: 0,
+                to: 10,
+                step: 1,
+                scale: [1, 2, 3, 4, 5],
+                format: '%s',
+                width: 160,
+                showLabels: true,
+                showScale: false
+            });
+        }
+        function getTheValue(sliderId,inputId) {
+            var rangeValue = $("#"+sliderId).val();
+            if(inputId == "sizeVal" && rangeValue == 0){
+                alert("文字大小不能为零");
+            }
+            $("#"+inputId).val(rangeValue);
+        }
+        function myCanvas(){
+            var width = 230;
+            var l=parseInt($('.rangeslider__handle').css('left'));
+            var c=document.getElementById("myCanvas");
+            var ctx=c.getContext("2d");
+            var grd=ctx.createLinearGradient(0,0,width,0);
+            grd.addColorStop(0,"#ff0000");
+            grd.addColorStop(0.2,"#ffff00");
+            grd.addColorStop(0.4,"#00ff00");
+            grd.addColorStop(0.6,"#00ffff");
+            grd.addColorStop(0.8,"#ff00ff");
+            grd.addColorStop(1,"#ffffff");
+            ctx.fillStyle=grd;
+            ctx.fillRect(0,0,width,20);
+            var imgData=ctx.getImageData(l,0,5,5);
+            red=imgData.data[0];
+            green=imgData.data[1];
+            blue=imgData.data[2];
+            alpha=imgData.data[3];
+            backgroundBG = [red, green, blue];
+            $("#colorVal").val("rgb("+red+","+green+","+blue+")");
+        }
+        $("#examples").on("touchend", function() {
+            myCanvas();
+        });
+        $("#setSize").on("touchend", function() {
+            if(chooseText == 0){
+                getTheValue("single-slider-size","sizeVal");
+            }else{
+                getTheValue("single-slider-height","heightVal");
+            }
+        });
+        $('#imgFile').change(function () {
+            var file = $('#imgFile')[0].files[0];
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $('#img1').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(file);
+        });
+        $("#edit-submit").on("click", function() {
+            save();
+        });
+
+        $("#guide-box").on("click", function() {
+            var guideBox = document.getElementById("guide-box");
+            guideBox.classList.add("hide");
+            setTimeout(function() {
+                document.body.removeChild(guideBox);
+            }, 600);
+        });
+
+    </script>
+</body>
+</html>

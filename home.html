@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+		<meta name="format-detection" content="telephone=no">
+		<link rel="stylesheet" href="css/base.css">
+		<link rel="stylesheet" href="css/main.css">
+		<title>首页</title>
+	</head>
+	<body>
+		<div id="page-index" class="content">
+			<!-- 导航 -->
+			<div class="content-block">
+				<div class="buttons-tab">
+					<a v-for="(tab, index) in tabs" class="tab-link" :class="{active:tab.active}" @click="tabChange(index)">{{ tab.text }}</a>
+				</div>
+			</div>
+			<!-- 内容 -->
+			<div class="content-block">
+				<com-shell :items="items" :isload="isload"></com-shell>
+                <!--<ul class="model-list">-->
+                    <!--<li>-->
+                        <!--<a href="edit.html">-->
+                            <!--<img src="images/1.png" style="width: 33%; height: 1rem">-->
+                            <!--<p>iphone5</p>-->
+                        <!--</a>-->
+                    <!--</li>-->
+                <!--</ul>-->
+                <com-null :items="items" :isload="isload"></com-null>
+            </div>
+        </div>
+        <script src="js/vue.js"></script>
+        <script src="js/vue-resource.min.js"></script>
+        <script src="js/app.js"></script>
+        <script src="js/jquery.js"></script>
+        <script>
+            (function(){
+
+                "use strict";
+                //http://localhost:3001 http://123.206.98.49:3000
+                var app = new Vue({
+                    el: "#page-index",
+                    data: {
+                        items: [],
+                        isload: false,
+                        tabs: [
+                            {
+                                text: "手机模型",
+                                url: "http://123.206.98.49:3001/get3dModel",
+                                active: true
+                            },
+                            {
+                                text: "其他模型",
+                                url: "#",
+                                active: false
+                            },
+                            {
+                                text: "推荐商品",
+                                url: "#",
+                                active: false
+                            }
+                        ],
+                        load: {
+                            isLoad: false,		// 是否显示加载
+                            isNull: false,		// 数据是否为空
+                            text: "暂无数据"	// 无数据提示文字
+                        }
+                    },
+                    methods: {
+                        // 切换tab页
+                        tabChange: function(index) {
+                            if (this.isload) {
+                                return ;
+                            }
+
+                            var url = "";
+
+                            this.tabs.map(function(value, i) {
+                                if (index === i) {
+                                    value.active = true;
+                                    url = value.url;
+                                } else {
+                                    value.active = false;
+                                }
+                            });
+                            this.$http.get(url, {
+                                before: function() {
+                                    this.isload = true;
+                                }
+                            }).then(function(res) {
+                                this.isload = false;
+
+                                if(res.body){
+                                    this.items = this.initData(res.body.result);
+                                }
+
+                            }, function() {
+                                this.isload = false;
+                            });
+                        },
+                        initData: function(data) {
+                            return data.map(function(value) {
+
+                                var id = value.shangpinhao;
+                                var href = "edit.html?id=" + id;
+
+                                return  {
+                                    id : id,
+                                    title: value.moxingnamearray,
+//                                    img: img,
+                                    href: href
+                                }
+                            });
+                        }
+                    },
+                    components: {
+                        "com-shell": components.shell,
+                        "com-null": components.null
+                    }
+                });
+            })();
+        </script>
+    </body>
+</html>
